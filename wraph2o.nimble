@@ -115,6 +115,6 @@ task tests, "Run tests":
 
 task testserver, "Build testserver":
   echo "Building test server"
-  withDir "tests"
+  withDir "tests":
     exec "nim c --debuginfo test_server.nim"
 
