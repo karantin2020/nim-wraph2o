@@ -32,7 +32,7 @@ task buildr3, "Build r3 library":
       exec "git clone https://github.com/karantin2020/r3.git"
   withDir "./deps/r3":
     exec "./autogen.sh"
-    exec "./configure --enable-json && make"
+    exec "./configure && make"
   if fileExists("./build/libr3.a"):
     rmFile("./build/libr3.a")
   if fileExists("./build/libpcre.a"):
