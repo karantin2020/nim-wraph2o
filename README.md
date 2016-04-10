@@ -19,6 +19,9 @@ See [docs](https://h2o.examp1e.net)
 	nimble buildr3
 	nimble buildh2o
 
+And all in one
+	./buildit
+
 
 ##Test server
 
