@@ -26,7 +26,8 @@ See [docs](https://h2o.examp1e.net)
 	nimble testserver
 
 ###To start
-	./tests/test_server
+	cd ./tests/
+	./test_server -c examples/h2o/h2o.conf
 
 ###Test it
 
