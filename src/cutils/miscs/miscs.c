@@ -56,19 +56,6 @@ void res_send(h2o_req_t *req, const char* _body)
     h2o_send(req, &body, 1, 1);
 }
 
-int chunked_test(h2o_handler_t *self, h2o_req_t *req)
-{
-    // printf("Start chunked_test..\n");
-    req->res.status = 200;
-    // req->res.reason = "OK";
-    // printf("Add header...\n");
-    h2o_add_header(&req->pool, &req->res.headers, H2O_TOKEN_CONTENT_TYPE, H2O_STRLIT("text/plain"));
-    // printf("Start response..\n");
-    res_send(req, "Hello world\n");
-
-    return 0;
-}
-
 void print_paths(h2o_hostconf_t *hostconf)
 {
     h2o_pathconf_t *paths;
@@ -77,20 +64,6 @@ void print_paths(h2o_hostconf_t *hostconf)
     for (;i<hostconf->paths.size;i++) {
         fprintf(stderr, "Hostconf path: %s\n", paths[i].path.base);
     }
-}
-
-static int compare (const void * a, const void * b)
-{
-  return ( ((h2o_pathconf_t *)b)->path.len - ((h2o_pathconf_t *)a)->path.len );
-}
-
-static void rebuild_paths(h2o_hostconf_t *hostconf)
-{
-    h2o_pathconf_t *paths;
-    paths = hostconf->paths.entries;
-    int i = 0;
-
-    qsort (hostconf->paths.entries, hostconf->paths.size, sizeof(h2o_pathconf_t), compare);
 }
 
 void configure_router(h2o_globalconf_t *global_ptr)

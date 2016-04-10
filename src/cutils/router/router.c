@@ -1,6 +1,7 @@
 #if WITH_ROUTER
 
 #include "router.h"
+#include "str_array.h"
 
 int parse_method(const char *st, int len) {
     switch(len) {
