@@ -12,7 +12,6 @@ git
 
 
 ##Installation
----
 
 git clone https://github.com/karantin2020/nim-wraph2o.git
 cd nim-wraph2o
@@ -21,7 +20,7 @@ nimble buildh2o
 
 
 ##Test server
----
+
 ###To build
 nimble testserver
 
