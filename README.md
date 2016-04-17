@@ -9,7 +9,10 @@ See [docs](https://h2o.examp1e.net)
 	nimble >=0.7
 	svn
 	git
-
+	libuv (will be removed)
+	zlib1g-dev
+	[nim-multitool](https://github.com/karantin2020/nim-multitool)
+	[nim-cstd](https://github.com/karantin2020/nim-cstd)
 
 
 ##Installation

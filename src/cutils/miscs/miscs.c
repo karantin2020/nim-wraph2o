@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 #if WITH_ROUTER
 #include "router.h"
@@ -38,6 +39,7 @@ h2o_pathconf_t *register_handler(h2o_hostconf_t *hostconf,
         int method,
         int (*on_req)(h2o_handler_t *, h2o_req_t *))
 {
+    assert(hostconf && path);
     h2o_pathconf_t *pathconf = h2o_config_register_path(hostconf, path, 0);
     h2o_handler_t *handler = h2o_create_handler(pathconf, sizeof(*handler));
     handler->on_req = on_req;
@@ -82,6 +84,52 @@ void configure_router(h2o_globalconf_t *global_ptr)
 int file_send(h2o_req_t *req, int status, const char *reason, const char *path, const char *mime_type, int flags)
 {
     return h2o_file_send(req, status, reason, path, h2o_iovec_init(H2O_STRLEN(mime_type)), 0);
+}
+
+const char *query(h2o_req_t *req)
+{
+    if (req->query_at == SIZE_MAX) {
+        return "";
+    }
+    else {
+        return req->path.base + req->query_at;
+    }
+}
+
+wraph2o_req_t* init_request(h2o_req_t *h2o_req)
+{
+    wraph2o_req_t* req = h2o_mem_alloc_pool(&h2o_req->pool, sizeof(*req));
+    memset(req,0,sizeof(*req));
+    if (h2o_req->hostconf->authority.host.len) {
+        req->hostname = h2o_strdup(&h2o_req->pool, 
+            h2o_req->hostconf->authority.host.base, h2o_req->hostconf->authority.host.len).base;
+    }
+    req->method = h2o_strdup(&h2o_req->pool, h2o_req->method.base,
+        h2o_req->method.len).base;
+    req->url = h2o_strdup(&h2o_req->pool, h2o_req->path.base,
+        h2o_req->path.len).base;
+    if (h2o_req->query_at == SIZE_MAX) {
+        req->query = h2o_strdup(&h2o_req->pool, "", 1).base;
+    } else {
+        req->query = h2o_strdup(&h2o_req->pool, h2o_req->path.base + h2o_req->query_at,
+            h2o_req->path.len - h2o_req->query_at).base;
+    }
+    req->path = h2o_strdup(&h2o_req->pool, h2o_req->path_normalized.base,
+        h2o_req->path_normalized.len).base;
+    if (h2o_req->entity.base) {
+        req->payload = h2o_strdup(&h2o_req->pool, h2o_req->entity.base,
+            h2o_req->entity.len).base;
+    } else {
+        req->payload = h2o_strdup(&h2o_req->pool, "", 1).base;
+    }
+    if (h2o_req->authority.len) {
+        req->authority = h2o_strdup(&h2o_req->pool, h2o_req->authority.base,
+            h2o_req->authority.len).base;
+    } else {
+        req->authority = h2o_strdup(&h2o_req->pool, "", 1).base;
+    }
+    req->base_req = h2o_req;
+    return req;
 }
 
 #endif

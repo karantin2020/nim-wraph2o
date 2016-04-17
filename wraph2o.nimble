@@ -54,7 +54,7 @@ task buildh2o, "Build h2o library and make links":
       exec "git clone https://github.com/karantin2020/h2o.git"
   echo "\nBuilding h2o lib..."
   withDir "./deps/h2o":
-    exec "cmake . && make"
+    exec "cmake -DWITH_ROUTER_LIB=ON . && make"
   echo "\nMaking links to `h2o`, `libh2o`, `examples`"
   if fileExists("./build/h2o"):
     rmFile("./build/h2o")
