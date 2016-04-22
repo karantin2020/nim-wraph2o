@@ -96,37 +96,50 @@ const char *query(h2o_req_t *req)
     }
 }
 
+static void* strdup_t(h2o_mem_pool_t *pool, const char *s, size_t slen)
+{
+    char *ret = h2o_mem_alloc_pool(pool, slen + 1);
+    memcpy(ret, s, slen);
+    ret[slen] = '\0';
+    return ret;
+}
+
 wraph2o_req_t* init_request(h2o_req_t *h2o_req)
 {
     wraph2o_req_t* req = h2o_mem_alloc_pool(&h2o_req->pool, sizeof(*req));
     memset(req,0,sizeof(*req));
-    if (h2o_req->hostconf->authority.host.len) {
-        req->hostname = h2o_strdup(&h2o_req->pool, 
-            h2o_req->hostconf->authority.host.base, h2o_req->hostconf->authority.host.len).base;
+    h2o_iovec_t *tmp = &h2o_req->hostconf->authority.host;
+    if (tmp->len) {
+        req->hostname = strdup_t(&h2o_req->pool, 
+            tmp->base, tmp->len);
     }
-    req->method = h2o_strdup(&h2o_req->pool, h2o_req->method.base,
-        h2o_req->method.len).base;
-    req->url = h2o_strdup(&h2o_req->pool, h2o_req->path.base,
-        h2o_req->path.len).base;
+    tmp = &h2o_req->method;
+    req->method = strdup_t(&h2o_req->pool, tmp->base,
+        tmp->len);
+    tmp = &h2o_req->path;
+    req->url = strdup_t(&h2o_req->pool, tmp->base,
+        tmp->len);
     if (h2o_req->query_at == SIZE_MAX) {
-        req->query = h2o_strdup(&h2o_req->pool, "", 1).base;
+        req->query = strdup_t(&h2o_req->pool, "", 0);
     } else {
-        req->query = h2o_strdup(&h2o_req->pool, h2o_req->path.base + h2o_req->query_at,
-            h2o_req->path.len - h2o_req->query_at).base;
+        req->query = strdup_t(&h2o_req->pool, tmp->base + h2o_req->query_at,
+            tmp->len - h2o_req->query_at);
     }
-    req->path = h2o_strdup(&h2o_req->pool, h2o_req->path_normalized.base,
-        h2o_req->path_normalized.len).base;
-    if (h2o_req->entity.base) {
-        req->payload = h2o_strdup(&h2o_req->pool, h2o_req->entity.base,
-            h2o_req->entity.len).base;
+    tmp = &h2o_req->path_normalized;
+    req->path = strdup_t(&h2o_req->pool, tmp->base,
+        tmp->len);
+    tmp = &h2o_req->entity;
+    if (tmp->len) {
+        req->payload = tmp->base;
     } else {
-        req->payload = h2o_strdup(&h2o_req->pool, "", 1).base;
+        req->payload = strdup_t(&h2o_req->pool, "", 0);
     }
-    if (h2o_req->authority.len) {
-        req->authority = h2o_strdup(&h2o_req->pool, h2o_req->authority.base,
-            h2o_req->authority.len).base;
+    tmp = &h2o_req->authority;
+    if (tmp->len) {
+        req->authority = strdup_t(&h2o_req->pool, tmp->base,
+            tmp->len);
     } else {
-        req->authority = h2o_strdup(&h2o_req->pool, "", 1).base;
+        req->authority = strdup_t(&h2o_req->pool, "", 0);
     }
     req->base_req = h2o_req;
     return req;

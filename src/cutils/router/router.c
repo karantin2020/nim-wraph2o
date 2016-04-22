@@ -40,8 +40,10 @@ h2o_handler_t* tree_match_route(void* router_tree, h2o_req_t * req) {
         if (matched_route) {
             handler = matched_route->data;
             unsigned int t_size = entry->vars.tokens.size;
-            h2o_iovec_t *slugs = entry->vars.slugs.entries;
-            h2o_iovec_t *tokens = entry->vars.tokens.entries;
+
+            // h2o_iovec_t *slugs = entry->vars.slugs.entries;
+            // h2o_iovec_t *tokens = entry->vars.tokens.entries;
+            
             // for (int i = 0; i < t_size; i++) {
             //     // slugs + i;
             //     // tokens + i;

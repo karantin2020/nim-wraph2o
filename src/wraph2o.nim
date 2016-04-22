@@ -145,7 +145,7 @@ template `@`*(name: untyped, body: untyped): untyped {.immediate, dirty.} =
   ## Handler create decorator
   proc name*(self: ptr h2o_handler_t, base_req: ptr h2o_req_t): cint {.cdecl.} =
     # echo "start handler"
-    system.setupForeignThreadGc()
+    # system.setupForeignThreadGc()
     var req: ptr wraph2o_req_t = init_request(base_req)
     # echo "start body"
     body
