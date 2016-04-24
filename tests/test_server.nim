@@ -11,11 +11,18 @@ import
   ## equal to proc (self: ptr h2o_handler_t, 
   ##   base_req: ptr h2o_req_t): cint {.cdecl.}
   ## req: ptr wraph2o_req_t
+  # echo req.hostname
+  # echo req.http_method
+  # echo req.url
+  # echo req.query
   # echo req.path
+  # echo req.payload
+  # echo req.hostport
+
   req
     .header(CONTENT_TYPE, "text/plain")
     .status(200)
-    .send(req.path)
+    .send("Hello\n")
 
 @form_test:
   req
@@ -35,15 +42,24 @@ proc file_test(self: ptr h2o_handler_t, req: ptr h2o_req_t): cint {.cdecl.} =
   req
     .file_send("./examples/doc_root/index.html")
 
-proc post_test(self: ptr h2o_handler_t, req: ptr h2o_req_t): cint {.cdecl.} =
-  req.status(200)
-    .send(req.body())
+@post_test:
+  # echo req.hostname
+  # echo req.http_method
+  # echo req.url
+  # echo req.query
+  # echo req.path
+  # echo req.payload
+  # echo req.hostport
+  
+  req
+    .status(200)
+    .send(req.payload)
 
 newServer()
 
 var host = h2o_get_hostport("127.0.0.1","8080")
 host.register_handler("/hello", METHOD_GET, hello_test)
-host.register_handler("/form", METHOD_GET, form_test)
+host.register_handler("/form/{id}", METHOD_GET, form_test)
 host.register_handler("/file", METHOD_GET, file_test)
 host.register_handler("/post", METHOD_POST, post_test)
 

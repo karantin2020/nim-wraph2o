@@ -44,6 +44,7 @@ h2o_pathconf_t *register_handler(h2o_hostconf_t *hostconf,
     h2o_handler_t *handler = h2o_create_handler(pathconf, sizeof(*handler));
     handler->on_req = on_req;
 #if WITH_ROUTER
+    // fprintf(stderr, "Register path %s with len %d\n", path, strlen(path));
     r3_tree_insert_routel(hostconf->router_tree, 
         method, path, strlen(path), handler );
 #endif
@@ -106,41 +107,58 @@ static void* strdup_t(h2o_mem_pool_t *pool, const char *s, size_t slen)
 
 wraph2o_req_t* init_request(h2o_req_t *h2o_req)
 {
-    wraph2o_req_t* req = h2o_mem_alloc_pool(&h2o_req->pool, sizeof(*req));
+    h2o_mem_pool_t *pool_t = &h2o_req->pool;
+    wraph2o_req_t* req = h2o_mem_alloc_pool(pool_t, sizeof(*req));
     memset(req,0,sizeof(*req));
+    char *ret = h2o_mem_alloc_pool(pool_t, h2o_req->path.len + 8 + 
+        h2o_req->hostconf->authority.host.len + h2o_req->method.len + 
+        h2o_req->path_normalized.len + h2o_req->authority.len);
+    char *pos = ret;
     h2o_iovec_t *tmp = &h2o_req->hostconf->authority.host;
+    req->hostname = pos;
     if (tmp->len) {
-        req->hostname = strdup_t(&h2o_req->pool, 
-            tmp->base, tmp->len);
-    }
-    tmp = &h2o_req->method;
-    req->method = strdup_t(&h2o_req->pool, tmp->base,
-        tmp->len);
-    tmp = &h2o_req->path;
-    req->url = strdup_t(&h2o_req->pool, tmp->base,
-        tmp->len);
-    if (h2o_req->query_at == SIZE_MAX) {
-        req->query = strdup_t(&h2o_req->pool, "", 0);
+        memcpy(pos, tmp->base, tmp->len);
     } else {
-        req->query = strdup_t(&h2o_req->pool, tmp->base + h2o_req->query_at,
-            tmp->len - h2o_req->query_at);
+        memcpy(pos, "", 0);
     }
+    pos[tmp->len] = '\0';
+    pos += tmp->len + 1;
+
+    tmp = &h2o_req->method;
+    req->method = pos;
+    memcpy(pos, tmp->base, tmp->len);
+    pos[tmp->len] = '\0';
+    pos += tmp->len + 1;
+
+    tmp = &h2o_req->path;
+    req->url = pos;
+    memcpy(pos, tmp->base, tmp->len);
+    pos[tmp->len] = '\0';
+    
+    req->query = pos + h2o_req->query_at;
+    pos += tmp->len + 1;
+
     tmp = &h2o_req->path_normalized;
-    req->path = strdup_t(&h2o_req->pool, tmp->base,
-        tmp->len);
+    req->path = pos;
+    memcpy(pos, tmp->base, tmp->len);
+    pos[tmp->len] = '\0';
+    pos += tmp->len + 1;
+
     tmp = &h2o_req->entity;
     if (tmp->len) {
         req->payload = tmp->base;
     } else {
-        req->payload = strdup_t(&h2o_req->pool, "", 0);
+        req->payload = pos;
+        pos[0] = '\0';
+        pos += 1;
     }
+
     tmp = &h2o_req->authority;
-    if (tmp->len) {
-        req->authority = strdup_t(&h2o_req->pool, tmp->base,
-            tmp->len);
-    } else {
-        req->authority = strdup_t(&h2o_req->pool, "", 0);
-    }
+    req->authority = pos;
+    memcpy(pos, tmp->base, tmp->len);
+    pos[tmp->len] = '\0';
+    pos += tmp->len + 1;
+
     req->base_req = h2o_req;
     return req;
 }

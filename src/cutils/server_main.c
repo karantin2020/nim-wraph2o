@@ -1799,6 +1799,11 @@ void h2o_server_setup(int argc, char **argv)
 
 void h2o_server_start()
 {
+    h2o_hostconf_t **hosts_ptr = conf.globalconf.hosts;
+    for ( ; *hosts_ptr; hosts_ptr++ )
+    {
+        compile_routes((*hosts_ptr)->router_tree);
+    }
     assert(conf.num_threads != 0);
 
     /* start the threads */
