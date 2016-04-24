@@ -1767,33 +1767,7 @@ void h2o_server_setup(int argc, char **argv)
         (*hosts_ptr)->cb_free_router = r3_tree_free;
         (*hosts_ptr)->cb_tree_match_route =  tree_match_route;
     }
-    // h2o_hostconf_t *phostconf = get_hostconf(&conf.globalconf, "127.0.0.1:8080");
-
-    // // fprintf(stderr, "Register host:\n");
-    // // phostconf = h2o_config_register_host(&conf.globalconf, h2o_iovec_init(H2O_STRLIT("127.0.0.1")), 8080);
-    // if (phostconf)
-    // {
-    //     register_handler(phostconf, "/api/{dArling:[a-zA-Z]+}/{id:[1-9]{1,3}}", METHOD_GET, chunked_test);
-    //     register_handler(phostconf, "/api/{dArling:[a-zA-Z]+}/", METHOD_GET, chunked_test);
-    //     register_handler(phostconf, "/api/{dArling:[a-zA-Z]+}", METHOD_GET, chunked_test);
-    //     compile_routes(phostconf->router_tree);
-    // }
 #endif
-
-    // assert(conf.num_threads != 0);
-
-    // /* start the threads */
-    // conf.threads = alloca(sizeof(conf.threads[0]) * conf.num_threads);
-    // size_t i;
-    // for (i = 1; i != conf.num_threads; ++i) {
-    //     pthread_t tid;
-    //     h2o_multithread_create_thread(&tid, NULL, run_loop, (void *)i);
-    // }
-
-    // /* this thread becomes the first thread */
-    // run_loop((void *)0);
-
-    /* notreached */
     return;
 }
 
