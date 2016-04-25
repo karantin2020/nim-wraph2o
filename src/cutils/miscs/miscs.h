@@ -75,6 +75,7 @@ h2o_pathconf_t *register_handler(h2o_hostconf_t *hostconf,
         int (*on_req)(h2o_handler_t *, h2o_req_t *));
 
 wraph2o_req_t* init_request(h2o_req_t *req);
+void parse_headers(h2o_req_t *h2o_req);
 void res_send(h2o_req_t *req, const char* _body);
 void print_paths(h2o_hostconf_t *hostconf);
 void configure_router(h2o_globalconf_t *global_ptr);

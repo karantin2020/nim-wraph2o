@@ -1,5 +1,7 @@
 import
   os,
+  typetraits,
+  tables,
   # htmlgen,
   multitool,
   cstd,
@@ -20,6 +22,12 @@ import
   # echo req.hostport
 
   req
+    .parse_headers()
+    .map(proc(req: ptr wraph2o_req_t): ptr wraph2o_req_t =
+      for n,v in req.headers.pairs():
+        echo n, " : ", v
+      return req
+    )
     .header(CONTENT_TYPE, "text/plain")
     .status(200)
     .send("Hello\n")

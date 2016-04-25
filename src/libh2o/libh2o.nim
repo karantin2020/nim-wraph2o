@@ -1115,7 +1115,7 @@ type
 #*
 #      list of request headers
 #     
-    headers* {.importc: "headers".}: h2o_headers_t 
+    headers* {.importc: "headers".}: H2O_VECTOR[h2o_header_t] 
 #*
 #      the request entity (base == NULL if none)
 #     
@@ -1123,7 +1123,7 @@ type
 #*
 #      remote_user (base == NULL if none)
 #     
-    remote_user* {.importc: "remote_user".}: h2o_iovec_t 
+    # remote_user* {.importc: "remote_user".}: h2o_iovec_t 
 #*
 #      timestamp when the request was processed
 #     
@@ -1148,6 +1148,10 @@ type
 #      counts the number of times the request has been delegated
 #     
     num_delegated* {.importc: "num_delegated".}: cuint # flags 
+#
+#      environment variables
+#    
+    env* {.importc: "env".}: H2O_VECTOR[h2o_iovec_t]
 #*
 #      whether or not the connection is persistent.
 #      Applications should set this flag to zero in case the connection cannot be kept keep-alive (due to an error etc.)
@@ -1165,7 +1169,8 @@ type
 #*
 #      preferred chunk size by the ostream
 #     
-    preferred_chunk_size* {.importc: "preferred_chunk_size".}: csize # internal structure 
+    preferred_chunk_size* {.importc: "preferred_chunk_size".}: csize 
+#      internal structure 
     inner_generator* {.importc: "_generator".}: ptr h2o_generator_t
     inner_ostr_top* {.importc: "_ostr_top".}: ptr h2o_ostream_t
     inner_next_filter_index* {.importc: "_next_filter_index".}: csize

@@ -163,4 +163,17 @@ wraph2o_req_t* init_request(h2o_req_t *h2o_req)
     return req;
 }
 
+void parse_headers(h2o_req_t *h2o_req)
+{
+    h2o_headers_t *thdr = &h2o_req->headers;
+    h2o_iovec_t *tmp;
+    for (int j=0; j<thdr->size; j++) {
+        tmp = &thdr->entries[j].value;
+        if (tmp->len && strlen(tmp->base) > tmp->len) {
+            tmp->base[tmp->len] = '\0';
+        }
+    }
+    
+}
+
 #endif

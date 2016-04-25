@@ -2,10 +2,12 @@ import os
 const memory_header_file = splitPath(currentSourcePath()).head & 
     "/../../../deps/h2o/include/h2o/memory.h"
 
+const ArrayDummySize = when defined(cpu16): 10_000 else: 100_000_000
+
 type H2O_VECTOR*[T] = object
-  entries: ptr T
-  size: csize
-  capacity: csize
+  entries*: array [0..ArrayDummySize, T]
+  size*: csize
+  capacity*: csize
 
 type h2o_vector_t* = H2O_VECTOR[void]
 
@@ -111,3 +113,14 @@ proc h2o_memis*(target: pointer; target_len: csize; test: pointer; test_len: csi
 
 proc h2o_iovec_init*(base: cstring; inner_len: csize): h2o_iovec_t {.cdecl,
     importc: "h2o_iovec_init", header: memory_header_file.}
+
+
+when isMainModule:
+  type
+    Foo = object
+      a: string
+      b: int
+
+  var foo: H2O_VECTOR[Foo]
+
+  echo foo.size

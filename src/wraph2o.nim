@@ -1,4 +1,4 @@
-import os, tables, multitool
+import os, tables, multitool, typetraits
 
 const 
   router_header_file = splitPath(currentSourcePath()).head & 
@@ -42,30 +42,30 @@ type
 
   params_t* {.pure, final, importc: "struct st_params_t", 
       header: miscs_header_file.} = object
-    name {.importc: "name".}: cstring
-    value {.importc: "value".}: cstring
+    name* {.importc: "name".}: cstring
+    value* {.importc: "value".}: cstring
 
   auth_t* {.pure, final.} = object
-    isAuthenticated: cint
-    credentials: cstring
-    artifacts: cstring
-    strategy: pointer
-    mode: pointer
-    error: pointer
+    isAuthenticated* : cint
+    credentials* : cstring
+    artifacts* : cstring
+    strategy* : pointer
+    mode* : pointer
+    error* : pointer
 
   wraph2o_req_t* {.pure, final, importc: "struct st_wraph2o_req_t",
       header: miscs_header_file.} = object
-    hostname {.importc: "hostname".}: cstring
-    hostport {.importc: "authority".}: cstring
-    http_method {.importc: "method".}: cstring
-    url {.importc: "url".}: cstring
-    query {.importc: "query".}: cstring
-    path {.importc: "path".}: cstring
-    headers {.importc: "headers".}: ptr h2o_headers_t
-    payload {.importc: "payload".}: cstring
-    params: H2O_VECTOR[params_t]
-    auth {.importc: "auth".}: auth_t
-    base_req {.importc: "base_req".}: ptr h2o_req_t
+    hostname* {.importc: "hostname".}: cstring
+    hostport* {.importc: "authority".}: cstring
+    http_method* {.importc: "method".}: cstring
+    url* {.importc: "url".}: cstring
+    query* {.importc: "query".}: cstring
+    path* {.importc: "path".}: cstring
+    headers* {.importc: "headers".}: TableRef[cstring, cstring]
+    payload* {.importc: "payload".}: cstring
+    params* : H2O_VECTOR[params_t]
+    auth* {.importc: "auth".}: auth_t
+    base_req* {.importc: "base_req".}: ptr h2o_req_t
  
 proc register_handler*(hostconf: ptr h2o_hostconf_t, 
                       path: cstring, 
@@ -141,9 +141,12 @@ proc query*(req: ptr h2o_req_t):cstring {.cdecl,
 proc init_request*(req: ptr h2o_req_t): ptr wraph2o_req_t {.cdecl,
   importc: "init_request", header: miscs_header_file.}
 
-template `@`*(name: untyped, body: untyped): untyped {.immediate, dirty.} =
+proc parse_headers(h2o_req: ptr h2o_req_t) {.cdecl,
+  importc: "parse_headers", header: miscs_header_file.}
+
+template `@`*(tname: untyped, body: untyped): untyped {.immediate, dirty.} =
   ## Handler create decorator
-  proc name*(self: ptr h2o_handler_t, base_req: ptr h2o_req_t): cint {.cdecl.} =
+  proc tname*(self: ptr h2o_handler_t, base_req: ptr h2o_req_t): cint {.cdecl.} =
     # echo "start handler"
     system.setupForeignThreadGc()
     var req: ptr wraph2o_req_t = init_request(base_req)
@@ -153,6 +156,16 @@ template `@`*(name: untyped, body: untyped): untyped {.immediate, dirty.} =
 proc send*(req: ptr wraph2o_req_t, 
            pbody: cstring) = 
   req.base_req.send(pbody)
+
+proc parse_headers*(req: ptr wraph2o_req_t): ptr wraph2o_req_t =
+  req.base_req.parse_headers()
+  var 
+    hdr: ptr h2o_header_t
+  req.headers = newTable[cstring,cstring](8)
+  for i in 0..req.base_req.headers.size-1:
+    hdr = addr req.base_req.headers.entries[i]
+    req.headers[hdr.name.base] = hdr.value.base
+  return req
 
 proc header*(req: ptr wraph2o_req_t, 
              token: ptr h2o_token_t, pheader: cstring): ptr wraph2o_req_t =
@@ -170,4 +183,11 @@ proc form*(req: ptr wraph2o_req_t): ptr wraph2o_req_t =
 proc statusOk*(req: ptr wraph2o_req_t): ptr wraph2o_req_t =
   discard req.base_req.statusOk()
   return req
+
+proc map*(req: ptr wraph2o_req_t, 
+    cb: proc (req: ptr wraph2o_req_t): ptr wraph2o_req_t ): ptr wraph2o_req_t =
+  return req.cb()
+
+
+
 
