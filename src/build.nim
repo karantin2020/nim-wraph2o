@@ -6,9 +6,13 @@ const
   dirSourcePath = dirCurrentPath & "/"
   dirBuildPath = dirCurrentPath & "/../build/"
 
-{.passC: "-DH2O_USE_LIBUV=0 -DWITH_ROUTER=1 -DH2O_USE_BROTLI=1 -g -pg".}
+when defined(libuv):
+    {.passC: "-DH2O_USE_LIBUV=1 -DWITH_ROUTER=1 -DH2O_USE_BROTLI=1".}
+else:
+    {.passC: "-DH2O_USE_LIBUV=0 -DWITH_ROUTER=1 -DH2O_USE_BROTLI=1".}
 
 {.passC: "-I/usr/local/include".}
+{.passC: "-I/usr/include".}
 {.passC: "-I" & dirSourcePath & "cutils/router".}
 {.passC: "-I" & dirSourcePath & "cutils/miscs".}
 
@@ -26,7 +30,7 @@ const
 {.passC: "-I" & dirDepsPath & "h2o/deps/yoml".}
 
 {.passC: "-I" & dirDepsPath & "r3/include".}
-{.passC: "-I" & dirDepsPath & "pcre".}
+# {.passC: "-I" & dirDepsPath & "pcre".}
 
 {.compile: dirSourcePath & "cutils/router/router.c".}
 {.compile: dirSourcePath & "cutils/miscs/miscs.c".}
@@ -59,12 +63,24 @@ const
 {.compile: dirDepsPath & "h2o/deps/brotli/enc/streams.cc".}
 {.compile: dirDepsPath & "h2o/deps/brotli/enc/utf8_util.cc".}
 
-{.passL: dirBuildPath & "libh2o-evloop.a"}
+when defined(libuv):
+    {.passL: dirBuildPath & "libh2o.a"}
+    {.passL: "-luv".}
+else:
+    {.passL: dirBuildPath & "libh2o-evloop.a"}
+
 {.passL: dirBuildPath & "libr3.a".}
-{.passL: dirBuildPath & "libpcre.a".}
+# {.passL: dirBuildPath & "libpcre.a".}
 # {.passL: "-ljson-c".}
-{.passL: "-lssl".}
-{.passL: "-lcrypto".}
+{.passL: "-lpcre".}
+
+when defined(libressl):
+    {.passL: "-lssl".}
+    {.passL: "-lcrypto".}
+else:
+    {.passL: "-L/lib/x86_64-linux-gnu".}
+    {.passL: "-l:libssl.so.1.0.0".}
+    {.passL: "-l:libcrypto.so.1.0.0".}
 {.passL: "-lz".}
 {.passL: "-lstdc++".}
 {.passL: "-lm".}

@@ -10,17 +10,23 @@ const
   multithread_header_file  = h2oPath & "include/" & "h2o/multithread.h"
   socket_header_file       = h2oPath & "include/" & "h2o/socket.h"
   timeout_header_file      = h2oPath & "include/" & "h2o/timeout.h"
-  # uvbackend_header_file    = h2oPath & "include/" & "h2o/socket/uv-binding.h"
   filecache_header_file    = h2oPath & "include/" & "h2o/filecache.h"
   socketpool_header_file   = h2oPath & "include/" & "h2o/socketpool.h"
-  uvbinding_header_file    = h2oPath & "include/" & "h2o/socket/uv-binding.h"
   http1client_header_file  = h2oPath & "include/" & "h2o/http1client.h"
+
+when defined(libuv):
+  const
+    uvbackend_header_file    = h2oPath & "include/" & "h2o/socket/uv-binding.h"
+    uvbinding_header_file    = h2oPath & "include/" & "h2o/socket/uv-binding.h"
 
 var
   SIZE_MAX* {.importc: "SIZE_MAX", 
       header: "<stdint.h>".}: csize
 
-import libuv, openssl
+when defined(libuv):
+  import libuv
+
+import openssl
 
 import h2o/linklist, h2o/memory, h2o/url
 
@@ -119,7 +125,7 @@ type
       importc: "h2o_configurator_context_t", 
       header: config_header_file.} = st_h2o_configurator_context_t
   h2o_filecache_t* = st_h2o_filecache_t
-  h2o_loop_t* = libuv.Loop
+  h2o_loop_t* = pointer
   
 #
 #  Filecache
@@ -155,7 +161,10 @@ type
 
   st_h2o_multithread_queue_t* {.pure, final, importc: "struct st_h2o_multithread_queue_t",
         header: multithread_header_file.} = object
-    async* {.importc: "async".}: TAsync
+    when defined(libuv):
+      async* {.importc: "async".}: TAsync
+    else:
+      async* {.importc: "async".}: ASYNC_INNER_STRUCT
     mutex* {.importc: "mutex".}: Pthread_mutex
     receivers* {.importc: "receivers".}: INNER_C_STRUCT_14839894197891031362
 
@@ -780,7 +789,7 @@ type
 #*
 #      points to the loop (either uv_loop_t or h2o_evloop_t, depending on the value of H2O_USE_LIBUV)
 #     
-    loop* {.importc: "loop".}: libuv.PLoop 
+    loop* {.importc: "loop".}: pointer
 #*
 #      timeout structure to be used for registering deferred callbacks
 #     
@@ -1287,7 +1296,7 @@ proc h2o_reproxy_register*(pathconf: ptr h2o_pathconf_t) {.cdecl,
 #  initializes the context
 # 
 
-proc h2o_context_init*(context: ptr h2o_context_t; loop: libuv.PLoop;
+proc h2o_context_init*(context: ptr h2o_context_t; loop: pointer;
                       config: ptr h2o_globalconf_t) {.cdecl,
     importc: "h2o_context_init", header: h2o_header_file.}
 #*
@@ -1456,7 +1465,8 @@ proc h2o_mem_alloc*(sz: int): pointer {.inline, cdecl.} =
   if p == nil: raise newException(OutOfMemError, "no memory")
   return p
 
-proc h2o_uv_socket_create*(stream: PStream, close_cb: libuv.CloseProc): ptr h2o_socket_t {.
-    importc: "h2o_uv_socket_create", header: uvbinding_header_file.}
+when defined(libuv):
+  proc h2o_uv_socket_create*(stream: pointer, close_cb: proc (handle: pointer) {.cdecl.}): ptr h2o_socket_t {.
+      importc: "h2o_uv_socket_create", header: uvbinding_header_file.}
 
 

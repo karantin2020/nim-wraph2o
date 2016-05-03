@@ -66,10 +66,10 @@ proc file_test(self: ptr h2o_handler_t, req: ptr h2o_req_t): cint {.cdecl.} =
 newServer()
 
 var host = h2o_get_hostport("127.0.0.1","8080")
-host.register_handler("/hello", METHOD_GET, hello_test)
-host.register_handler("/form/{id}", METHOD_GET, form_test)
-host.register_handler("/file", METHOD_GET, file_test)
-host.register_handler("/post", METHOD_POST, post_test)
+host.register_handler("/hello", GET, hello_test)
+host.register_handler("/form/{id}", GET, form_test)
+host.register_handler("/file", GET, file_test)
+host.register_handler("/post", POST, post_test)
 
 
 h2o_server_start()

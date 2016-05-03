@@ -32,13 +32,13 @@ type
     ##  on_req callback type (used in register_handler)
 
   HTTP_METHODS* {.size: sizeof(cint).} = enum
-    METHOD_GET = 2,
-    METHOD_POST = 2 shl 1,
-    METHOD_PUT = 2 shl 2,
-    METHOD_DELETE = 2 shl 3,
-    METHOD_PATCH = 2 shl 4,
-    METHOD_HEAD = 2 shl 5,
-    METHOD_OPTIONS = 2 shl 6
+    GET = 2,
+    POST = 2 shl 1,
+    PUT = 2 shl 2,
+    DELETE = 2 shl 3,
+    PATCH = 2 shl 4,
+    HEAD = 2 shl 5,
+    OPTIONS = 2 shl 6
 
   params_t* {.pure, final, importc: "struct st_params_t", 
       header: miscs_header_file.} = object

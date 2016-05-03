@@ -18,12 +18,6 @@ requires "nim >= 0.12.0"
 
 task buildr3, "Build r3 library":
   let curPath = thisDir()
-  withDir "./deps":
-    exec "svn co svn://vcs.exim.org/pcre/code/trunk pcre"
-  withDir "./deps/pcre":
-    exec "./autogen.sh"
-    exec "./configure"
-    exec "make"
   if dirExists("./deps/r3"):
     withDir "./deps/r3":
       exec "git pull https://github.com/karantin2020/r3.git"
@@ -35,12 +29,8 @@ task buildr3, "Build r3 library":
     exec "./configure && make"
   if fileExists("./build/libr3.a"):
     rmFile("./build/libr3.a")
-  if fileExists("./build/libpcre.a"):
-    rmFile("./build/libpcre.a")
   exec "ln -s " & curPath & 
     "/deps/r3/.libs/libr3.a ./build/libr3.a"
-  exec "ln -s " & curPath & 
-    "/deps/pcre/.libs/libpcre.a ./build/libpcre.a"
 
 task buildh2o, "Build h2o library and make links":
   let curPath = thisDir()
