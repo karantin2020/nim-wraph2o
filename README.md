@@ -9,10 +9,10 @@ See [docs](https://h2o.examp1e.net)
 	nimble >=0.7
 	svn
 	git
-	libuv (will be removed)
-	zlib1g-dev
-	[nim-multitool](https://github.com/karantin2020/nim-multitool)
-	[nim-cstd](https://github.com/karantin2020/nim-cstd)
+	libuv (not in default, but you can choose it)
+	zlib
+	nim-multitool (https://github.com/karantin2020/nim-multitool)
+	nim-cstd (https://github.com/karantin2020/nim-cstd)
 
 
 ##Installation
@@ -37,6 +37,6 @@ See [docs](https://h2o.examp1e.net)
 	curl -i -XGET "127.0.0.1:8080/"
 	curl -i -XGET "127.0.0.1:8080/file"
 	curl -i -XGET "127.0.0.1:8080/hello"
+	curl -i -XGET "127.0.0.1:8080/form/123"
 
-	!!!Warning in Nim GC segfault error may be. Need to correct it
-	curl -XPOST "127.0.0.1:8080/post" -d "Hello"
+	
