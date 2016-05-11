@@ -106,5 +106,5 @@ task tests, "Run tests":
 task testserver, "Build testserver":
   echo "Building test server"
   withDir "tests":
-    exec "nim c --debuginfo test_server.nim"
+    exec "nim c -d:libressl --debuginfo test_server.nim"
 

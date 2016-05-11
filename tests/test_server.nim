@@ -38,7 +38,8 @@ import
     .header(Set_cookie, "data=json")
     .statusOk()
     .send( """
-{"name":"ilya"}""" )
+{"name":"ilya"}
+""" )
 
 # proc hello_test(self: ptr h2o_handler_t, req: ptr h2o_req_t): cint {.cdecl.} =
 #   req
