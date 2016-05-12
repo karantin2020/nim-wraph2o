@@ -20,15 +20,16 @@ import
   # echo req.path
   # echo req.payload
   # echo req.hostport
-
+  # let cnt = "Hello\n"
   req
-    .parse_headers()
-    .map(proc(req: ptr wraph2o_req_t): ptr wraph2o_req_t =
-      for n,v in req.headers.pairs():
-        echo n, " : ", v
-      return req
-    )
+    # .parse_headers()
+    # .map(proc(req: ptr wraph2o_req_t): ptr wraph2o_req_t =
+    #   for n,v in req.headers.pairs():
+    #     echo n, " : ", v
+    #   return req
+    # )
     .header(CONTENT_TYPE, "text/plain")
+    .header(CONTENT_LENGTH, "6")
     .status(200)
     .send("Hello\n")
 
@@ -67,9 +68,9 @@ proc file_test(self: ptr h2o_handler_t, req: ptr h2o_req_t): cint {.cdecl.} =
 newServer()
 
 var host = h2o_get_hostport("127.0.0.1","8080")
-host.register_handler("/hello", GET, hello_test)
+host.register_handler("/hello", GET | HEAD, hello_test)
 host.register_handler("/form/{id}", GET, form_test)
-host.register_handler("/file", GET, file_test)
+host.register_handler("/file", GET | HEAD, file_test)
 host.register_handler("/post", POST, post_test)
 
 

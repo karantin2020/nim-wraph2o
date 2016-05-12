@@ -16,16 +16,18 @@ import
   ./statuscodes,
   ./build
 
-##################
+# #################
 # Few common procs for cstring
-# ################
+# #################
 
 # proc `[]`(s: cstring; x: Slice[int]): cstring {.inline, 
 #     raises: [], tags: [].} =
 #   discard
 
 
-
+# ####
+# Wrapper types
+# ####
 type
   on_req_cb* = proc (handler: ptr h2o_handler_t, 
     req: ptr h2o_req_t): cint {.cdecl.}
@@ -66,10 +68,24 @@ type
     params* : H2O_VECTOR[params_t]
     auth* {.importc: "auth".}: auth_t
     base_req* {.importc: "base_req".}: ptr h2o_req_t
- 
+
+# #######
+# HTTP_METHODS `or` procs
+# #######
+
+proc `|`*(a,b: HTTP_METHODS): int =
+  return int(a) or int(b)
+  
+proc `|`*(a: int,b: HTTP_METHODS): int =
+  return a or int(b)
+
+
+# #######
+# Wrapped procs
+# #######
 proc register_handler*(hostconf: ptr h2o_hostconf_t, 
                       path: cstring, 
-                      router_method: HTTP_METHODS,
+                      router_method: HTTP_METHODS | int,
                       on_req: on_req_cb
                      ) {.cdecl,
   importc: "register_handler", header: miscs_header_file.}
@@ -144,6 +160,10 @@ proc init_request*(req: ptr h2o_req_t): ptr wraph2o_req_t {.cdecl,
 proc parse_headers(h2o_req: ptr h2o_req_t) {.cdecl,
   importc: "parse_headers", header: miscs_header_file.}
 
+# ##########
+# Proc for wraph2o_req_t type
+# ##########
+
 template `@`*(tname: untyped, body: untyped): untyped {.immediate, dirty.} =
   ## Handler create decorator
   proc tname*(self: ptr h2o_handler_t, base_req: ptr h2o_req_t): cint {.cdecl.} =
@@ -183,6 +203,7 @@ proc form*(req: ptr wraph2o_req_t): ptr wraph2o_req_t =
 proc statusOk*(req: ptr wraph2o_req_t): ptr wraph2o_req_t =
   discard req.base_req.statusOk()
   return req
+
 
 proc map*(req: ptr wraph2o_req_t, 
     cb: proc (req: ptr wraph2o_req_t): ptr wraph2o_req_t ): ptr wraph2o_req_t =
