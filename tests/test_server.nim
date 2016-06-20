@@ -31,7 +31,7 @@ import
     .header(CONTENT_TYPE, "text/plain")
     .header(CONTENT_LENGTH, "6")
     .status(200)
-    .send("Hello\n")
+    .send("Hello\n\0")
 
 @form_test:
   req
@@ -50,6 +50,9 @@ import
 
 proc file_test(self: ptr h2o_handler_t, req: ptr h2o_req_t): cint {.cdecl.} =
   req
+    .headerPush(LINK, "</styles/app.bf8ebb4de8962661d33b.css>; rel=preload")
+    .headerPush(LINK, "</scripts/vendor.8021f022cdebdb3a002e.js>; rel=preload; as=script")
+    .headerPush(LINK, "</scripts/app.bf8ebb4de8962661d33b.js>; rel=preload; as=script")
     .file_send("./examples/doc_root/index.html")
 
 @post_test:
@@ -67,7 +70,7 @@ proc file_test(self: ptr h2o_handler_t, req: ptr h2o_req_t): cint {.cdecl.} =
 
 newServer()
 
-var host = h2o_get_hostport("127.0.0.1","8080")
+var host = h2o_get_hostport("127.0.0.1","8081")
 host.register_handler("/hello", GET | HEAD, hello_test)
 host.register_handler("/form/{id}", GET, form_test)
 host.register_handler("/file", GET | HEAD, file_test)

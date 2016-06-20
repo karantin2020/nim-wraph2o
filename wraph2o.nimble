@@ -44,21 +44,21 @@ task buildh2o, "Build h2o library and make links":
       exec "git clone https://github.com/karantin2020/h2o.git"
   echo "\nBuilding h2o lib..."
   withDir "./deps/h2o":
-    exec "cmake -DWITH_ROUTER_LIB=ON . && make"
+    exec "cmake -DWITH_ROUTER_LIB=ON . && make libh2o-evloop"
   echo "\nMaking links to `h2o`, `libh2o`, `examples`"
-  if fileExists("./build/h2o"):
-    rmFile("./build/h2o")
-  if fileExists("./build/libh2o.a"):
-    rmFile("./build/libh2o.a")
+  # if fileExists("./build/h2o"):
+  #   rmFile("./build/h2o")
+  # if fileExists("./build/libh2o.a"):
+  #   rmFile("./build/libh2o.a")
   if fileExists("./build/libh2o-evloop.a"):
     rmFile("./build/libh2o-evloop.a")
-  if dirExists("./build/examples"):
-    rmFile("./build/examples")
-  exec "ln -s " & curPath & "/deps/h2o/h2o ./build/h2o"
-  exec "ln -s " & curPath & "/deps/h2o/libh2o.a ./build/libh2o.a"
+  # if dirExists("./build/examples"):
+  #   rmFile("./build/examples")
+  # exec "ln -s " & curPath & "/deps/h2o/h2o ./build/h2o"
+  # exec "ln -s " & curPath & "/deps/h2o/libh2o.a ./build/libh2o.a"
   exec "ln -s " & curPath & "/deps/h2o/libh2o-evloop.a ./build/libh2o-evloop.a"
-  exec "ln -s " & curPath & "/deps/h2o/examples ./build/examples"
-  exec "./build/h2o -v"
+  # exec "ln -s " & curPath & "/deps/h2o/examples ./build/examples"
+  # exec "./build/h2o -v"
   echo "\nEverything is done!\n"
 
 task rebuildh2o, "Rebuild h2o library and make links":
@@ -75,18 +75,18 @@ task rebuildh2o, "Rebuild h2o library and make links":
   withDir "./deps/h2o":
     exec "cmake . && make"
   echo "\nMaking links to `h2o`, `libh2o`, `examples`"
-  if fileExists("./build/h2o"):
-    rmFile("./build/h2o")
-  if fileExists("./build/libh2o.a"):
-    rmFile("./build/libh2o.a")
+  # if fileExists("./build/h2o"):
+  #   rmFile("./build/h2o")
+  # if fileExists("./build/libh2o.a"):
+  #   rmFile("./build/libh2o.a")
   if fileExists("./build/libh2o-evloop.a"):
     rmFile("./build/libh2o-evloop.a")
-  if dirExists("./build/examples"):
-    rmFile("./build/examples")
-  exec "ln -s " & curPath & "/deps/h2o/h2o ./build/h2o"
-  exec "ln -s " & curPath & "/deps/h2o/libh2o.a ./build/libh2o.a"
+  # if dirExists("./build/examples"):
+  #   rmFile("./build/examples")
+  # exec "ln -s " & curPath & "/deps/h2o/h2o ./build/h2o"
+  # exec "ln -s " & curPath & "/deps/h2o/libh2o.a ./build/libh2o.a"
   exec "ln -s " & curPath & "/deps/h2o/libh2o-evloop.a ./build/libh2o-evloop.a"
-  exec "ln -s " & curPath & "/deps/h2o/examples ./build/examples"
+  # exec "ln -s " & curPath & "/deps/h2o/examples ./build/examples"
   exec "./build/h2o -v"
   echo "\nEverything is done!\n"
 
@@ -94,7 +94,7 @@ task compileh2o, "Compile h2o library":
   echo "\nBuilding h2o lib..."
   withDir "./deps/h2o":
     # exec "make clean"
-    exec "cmake -DWITH_ROUTER_LIB=ON . && make"
+    exec "cmake -DWITH_ROUTER_LIB=ON . && make libh2o-evloop"
   echo "\nEverything is done!\n"
 
 task tests, "Run tests":
@@ -106,5 +106,5 @@ task tests, "Run tests":
 task testserver, "Build testserver":
   echo "Building test server"
   withDir "tests":
-    exec "nim c -d:libressl --debuginfo test_server.nim"
+    exec "nim c -d:libressl test_server.nim"
 

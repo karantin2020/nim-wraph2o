@@ -11,6 +11,7 @@ when defined(libuv):
 else:
     {.passC: "-DH2O_USE_LIBUV=0 -DWITH_ROUTER=1 -DH2O_USE_BROTLI=1".}
 
+# Includes section
 {.passC: "-I/usr/local/include".}
 {.passC: "-I/usr/include".}
 {.passC: "-I" & dirSourcePath & "cutils/router".}
@@ -32,13 +33,16 @@ else:
 {.passC: "-I" & dirDepsPath & "r3/include".}
 # {.passC: "-I" & dirDepsPath & "pcre".}
 
+# Wraph2o lib sources
 {.compile: dirSourcePath & "cutils/router/router.c".}
 {.compile: dirSourcePath & "cutils/miscs/miscs.c".}
 
+#  h2o src/ sources
 {.compile: dirMainPath & "cutils/server_main.c".}
 {.compile: dirDepsPath & "h2o/src/ssl.c".}
 {.compile: dirDepsPath & "h2o/deps/neverbleed/neverbleed.c".}
 
+# h2o deps/yaml sources
 {.compile: dirDepsPath & "h2o/deps/yaml/src/api.c".}
 {.compile: dirDepsPath & "h2o/deps/yaml/src/dumper.c".}
 {.compile: dirDepsPath & "h2o/deps/yaml/src/emitter.c".}
@@ -48,6 +52,7 @@ else:
 {.compile: dirDepsPath & "h2o/deps/yaml/src/scanner.c".}
 {.compile: dirDepsPath & "h2o/deps/yaml/src/writer.c".}
 
+# h2o brotli source files
 {.compile: dirDepsPath & "h2o/deps/brotli/enc/backward_references.cc".}
 {.compile: dirDepsPath & "h2o/deps/brotli/enc/block_splitter.cc".}
 {.compile: dirDepsPath & "h2o/deps/brotli/enc/brotli_bit_stream.cc".}
@@ -62,6 +67,7 @@ else:
 {.compile: dirDepsPath & "h2o/deps/brotli/enc/static_dict.cc".}
 {.compile: dirDepsPath & "h2o/deps/brotli/enc/streams.cc".}
 {.compile: dirDepsPath & "h2o/deps/brotli/enc/utf8_util.cc".}
+{.compile: dirDepsPath & "h2o/lib/handler/compress/brotli.cc".}
 
 when defined(libuv):
     {.passL: dirBuildPath & "libh2o.a"}

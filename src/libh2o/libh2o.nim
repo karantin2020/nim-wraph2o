@@ -1445,9 +1445,15 @@ proc h2o_send_redirect_internal*(req: ptr h2o_req_t; `method`: h2o_iovec_t;
                                 preserve_overrides: cint) {.cdecl,
     importc: "h2o_send_redirect_internal", header: h2o_header_file.}
 
-##
+#*
+# registers push path (if necessary) by parsing a Link header
+#
+proc h2oPushPath*(req: ptr h2o_req_t, value: cstring, valueLen: csize): int {.cdecl,
+  importc: "h2o_push_path_in_link_header", header: h2o_header_file.}
+
+#**
 #  accepts a connection
-##
+#**
 proc h2o_accept*(ctx: ptr h2o_accept_ctx_t, sock: ptr h2o_socket_t) {.cdecl,
     importc: "h2o_accept", header: h2o_header_file.}
 

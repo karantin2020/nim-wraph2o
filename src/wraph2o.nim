@@ -1,4 +1,4 @@
-import os, tables, multitool, typetraits
+import os, posix, tables, multitool, typetraits
 
 const 
   router_header_file = splitPath(currentSourcePath()).head & 
@@ -107,6 +107,13 @@ proc header*(req: ptr h2o_req_t,
                  token, pheader, len pheader)
   return req
 
+proc headerPush*(req: ptr h2o_req_t, 
+             token: ptr h2o_token_t, pheader: cstring): ptr h2o_req_t =
+  discard h2oPushPath(req, pheader, len pheader)
+  h2o_add_header(addr(req.pool), addr(req.res.headers), 
+                 token, pheader, len pheader)
+  return req
+
 proc status*(req: ptr h2o_req_t, pstatus: cint): ptr h2o_req_t =
   req.res.status = pstatus
   req.res.reason = getStatus(pstatus)
@@ -119,8 +126,29 @@ proc statusOk*(req: ptr h2o_req_t): ptr h2o_req_t =
 proc h2o_server_setup*[N](argc: int, argv: array[N,cstring]) {.cdecl,
   importc: "h2o_server_setup", header: server_header_file.}
 
+proc run_loop(thread_index: pointer): pointer {.cdecl, noconv,
+  importc: "run_loop", header: server_header_file.}
+
 proc h2o_server_start*() {.cdecl,
   importc: "h2o_server_start", header: server_header_file.}
+
+proc h2o_server_prestart*(): int {.cdecl,
+  importc: "h2o_server_prestart", header: server_header_file.}
+
+# proc h2o_server_start*() =
+#   echo "expect h2o_server_prestart()"
+#   let thrnum = h2o_server_prestart()
+#   # when declared(threads.Thread):
+#   echo "runThreads"
+#   # proc runThreads(numThreads: int) =
+#   # var thr: seq[Thread[pointer]]
+#   # var rhr: seq[Pthread]
+#   # newSeq(thr, thrnum)
+#   # newSeq(rhr, thrnum)
+#   # for i in 1..thrnum-1:
+#   #   discard pthread_create(addr rhr[i], nil, run_loop, cast[pointer](i))
+#   # runThreads(thrnum)
+#   discard run_loop(cast[pointer](0))
 
 proc h2o_get_host*(hostport: cstring): ptr h2o_hostconf_t {.cdecl,
   importc: "h2o_get_host", header: server_header_file.}
